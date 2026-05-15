@@ -10,7 +10,7 @@
 ## Prerequisites
 
 - **Python** 3.12+ and [uv](https://docs.astral.sh/uv/)
-- **JDK** 17+ and a network fetch for Gradle (first `./gradlew` run downloads the distribution)
+- **JDK** 17+ and a network fetch for Gradle (first `./gradlew` run downloads the Gradle distribution)
 
 ## Quickstart
 
@@ -73,12 +73,12 @@ By default, OpenAPI is inferred via **local Ollama** (`POST /api/chat` on `OLLAM
 rm -rf /tmp/pykotmig-gen-order
 uv run --directory tool pykotmig-cli generate \
   --analysis examples/order-api/python/analysis.json \
-  --out /private/tmp/gen \
+  --out /tmp/pykotmig-gen-order \
   --kotlin-package dev.pykotmig.gen.orderapi \
   --project-name gen-order-api \
   --profile order-api \
   --force
-cd /private/tmp/gen && bash ./gradlew test
+cd /tmp/pykotmig-gen-order && bash ./gradlew test
 ```
 
 Use `--profile status-hub` with an analysis produced from `examples/status-hub/python` and `status_hub.app:app`.
@@ -87,39 +87,39 @@ Details, flags, and security notes: [tool/README.md](tool/README.md). The script
 
 ## Migration passes (planned tool)
 
-1. **Scan** — walk the Python service tree and extract components (routes, models, clients, …).  
-2. **Attribute** — attach types and metadata (OpenAPI, static analysis).  
-3. **Generate & verify** — emit Kotlin and prove parity (contracts, tests, CI — Phase 4).
+- **Scan** — walk the Python service tree and extract components (routes, models, clients, …).
+- **Attribute** — attach types and metadata (OpenAPI, static analysis).
+- **Generate & verify** — emit Kotlin and prove parity (contracts, tests, CI — Phase 4).
 
 This repository delivers the **reference corpus**, **catalog**, **Python analyzer**, and **Kotlin codegen** for the MVP profiles; **Phase 4** adds normalized OpenAPI diff + golden HTTP parity in CI.
 
 ## Verification story (status)
 
-**Reference demos (Status Hub + Order API):** committed **OpenAPI** snapshots under each demo’s `contracts/openapi.json` are checked in CI (`reference-demos-parity` job in [pykotmig-codegen.yml](../../.github/workflows/pykotmig-codegen.yml)): Python tests assert `app.openapi()` matches the file (normalized JSON); Kotlin tests assert **golden HTTP** bodies on success paths (and aligned status codes for validation). The same job runs **`./gradlew test`** for the migration-matrix Kotlin trees (`http-service-python`, `kafka-consumer-python`, `async-worker-python`, `ai-pipeline-python`, `cli-batch-python` under `examples/`). See [examples/contracts/README.md](examples/contracts/README.md).
+**Reference demos (Status Hub + Order API):** committed **OpenAPI** snapshots under each demo’s `contracts/openapi.json` are checked in CI (`reference-demos-parity` job in [pykotmig-codegen.yml](../.github/workflows/pykotmig-codegen.yml)): Python tests assert `app.openapi()` matches the file (normalized JSON); Kotlin tests assert **golden HTTP** bodies on success paths (and aligned status codes for validation). The same job runs **`./gradlew test`** for the migration-matrix Kotlin trees (`http-service-python`, `kafka-consumer-python`, `async-worker-python`, `ai-pipeline-python`, `cli-batch-python` under `examples/`). See [examples/contracts/README.md](examples/contracts/README.md).
 
 Automated **OpenAPI diff between Python and generated Kotlin** and full **VER** ladder parity are still **Phase 4** roadmap items for the **codegen** output; Phase 3 proves **`./gradlew test`** on emitted Kotlin (see the `codegen-smoke` job in the same workflow).
 
 ## Troubleshooting
 
-- **First Gradle run is slow:** `./gradlew` downloads the Gradle distribution and Maven dependencies.  
-- **Port in use:** choose another `--port` for Python, or set `PORT` before `./gradlew run` (defaults: Status Hub **8080**, Order API **8081**).  
+- **First Gradle run is slow:** `./gradlew` downloads the Gradle distribution and Maven dependencies.
+- **Port in use:** choose another `--port` for Python, or set `PORT` before `./gradlew run` (defaults: Status Hub **8080**, Order API **8081**).
 - **uv:** run `uv sync` from each demo’s `python/` directory (each demo has its own `.venv`).
 
 ## Repository layout
 
-| Path                                                                        | Purpose                                                                         |
-|-----------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| [catalog/](catalog/README.md)                                               | Human + machine (`manifest.json`) component index                               |
-| [examples/status-hub/](examples/status-hub/README.md)                       | Minimal parity demo                                                             |
-| [examples/order-api/](examples/order-api/README.md)                         | CRUD + client + DI demo                                                         |
-| [examples/catalog-showcase/](examples/catalog-showcase/README.md)           | One Python module per catalog component                                         |
-| [examples/http-service-python/](examples/http-service-python/README.md)     | FastAPI HTTP service (→ Ktor)                                                   |
-| [examples/kafka-consumer-python/](examples/kafka-consumer-python/README.md) | `kafka-python` consumer loop (→ JVM `kafka-clients`)                            |
-| [examples/async-worker-python/](examples/async-worker-python/README.md)     | asyncio job pool (→ Temporal Java SDK mental model)                             |
-| [examples/ai-pipeline-python/](examples/ai-pipeline-python/README.md)       | `langchain-core` Runnable pipeline (→ LangChain4j)                              |
-| [examples/cli-batch-python/](examples/cli-batch-python/README.md)           | `argparse` batch CLI (→ Clikt)                                                  |
-| [tool/](tool/README.md)                                                     | `pykotmig-cli`: `analyze` → `analysis.json`; `generate` → Ktor+Gradle (Phase 3) |
-| [.planning/](.planning/ROADMAP.md)                                          | Roadmap, requirements, phase plans                                              |
+| Path | Purpose |
+|------|---------|
+| `catalog/` | Human + machine (`manifest.json`) component index |
+| `examples/status-hub/` | Minimal parity demo |
+| `examples/order-api/` | CRUD + client + DI demo |
+| `examples/catalog-showcase/` | One Python module per catalog component |
+| `examples/http-service-python/` | FastAPI HTTP service (→ Ktor) |
+| `examples/kafka-consumer-python/` | `kafka-python` consumer loop (→ JVM `kafka-clients`) |
+| `examples/async-worker-python/` | asyncio job pool (→ Temporal Java SDK mental model) |
+| `examples/ai-pipeline-python/` | `langchain-core` Runnable pipeline (→ LangChain4j) |
+| `examples/cli-batch-python/` | `argparse` batch CLI (→ Clikt) |
+| `tool/` | `pykotmig-cli`: `analyze` → `analysis.json`; `generate` → Ktor+Gradle (Phase 3) |
+| `.planning/` | Roadmap, requirements, phase plans |
 
 ## Planning
 
