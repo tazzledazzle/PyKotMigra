@@ -29,4 +29,16 @@ uv run uvicorn order_api.app:app --host 127.0.0.1 --port 8081
 ./gradlew run
 ```
 
+## Contract baseline (Phase 4)
+
+- **OpenAPI:** [`contracts/openapi.json`](contracts/openapi.json) is regenerated from the FastAPI app; `tests/test_openapi_contract.py` fails on drift.
+- **Golden HTTP:** Kotlin tests assert the same JSON bodies as Python for CRUD, 404, and invalid title (422).
+- **Notify client:** Kotlin `HttpClient` uses **2s** connect + request timeouts (matches Python `httpx.Client(timeout=2.0)`).
+
+Regenerate OpenAPI from `python/`:
+
+```bash
+uv run python ../../scripts/export_openapi.py order-api
+```
+
 See the [root README](../../README.md) for full quickstart.

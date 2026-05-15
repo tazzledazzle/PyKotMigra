@@ -21,8 +21,10 @@ class NotFoundException : RuntimeException()
 @Serializable
 data class CreateOrderBody(val title: String)
 
-fun Application.module() {
-    configureDependencies()
+private const val ORDER_TITLE_MAX_LEN = 200
+
+fun Application.module(appConfig: AppConfig = AppConfig.fromEnv()) {
+    configureDependencies(appConfig)
 
     val json =
         Json {
@@ -46,6 +48,10 @@ fun Application.module() {
             val title = body.title.trim()
             if (title.isEmpty()) {
                 call.respond(HttpStatusCode.UnprocessableEntity, mapOf("detail" to "invalid title"))
+                return@post
+            }
+            if (title.length > ORDER_TITLE_MAX_LEN) {
+                call.respond(HttpStatusCode.UnprocessableEntity, mapOf("detail" to "title too long"))
                 return@post
             }
             val store = call.get<OrderStore>()

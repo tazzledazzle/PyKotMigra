@@ -5,23 +5,22 @@ from status_hub.app import app
 client = TestClient(app)
 
 
-def test_health() -> None:
+def test_health_golden_http() -> None:
     r = client.get("/health")
     assert r.status_code == 200
-    assert r.json() == {"status": "ok"}
+    assert r.text == '{"status":"ok"}'
 
 
-def test_version() -> None:
+def test_version_golden_http() -> None:
     r = client.get("/version")
     assert r.status_code == 200
-    assert r.json()["name"] == "status-hub"
-    assert r.json()["version"] == "0.1.0"
+    assert r.text == '{"name":"status-hub","version":"0.1.0"}'
 
 
-def test_echo_ok() -> None:
+def test_echo_ok_golden_http() -> None:
     r = client.post("/echo", json={"message": "hello", "count": 2})
     assert r.status_code == 200
-    assert r.json() == {"message": "hello", "count": 2}
+    assert r.text == '{"message":"hello","count":2}'
 
 
 def test_echo_validation() -> None:

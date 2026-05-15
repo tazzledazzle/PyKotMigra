@@ -1,16 +1,29 @@
+# app.py
 from __future__ import annotations
 
 import logging
+import os
 import time
 import uuid
 from collections.abc import Awaitable, Callable
+from typing import Any
 
-from fastapi import FastAPI, Request
-from starlette.responses import Response
+from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
+from starlette.responses import Response
+
+from catalog_showcase.background_tasks import demo_async_work
 
 logger = logging.getLogger("status_hub")
 
+
+def _expected_api_key() -> str:
+    # Read per-request to support runtime key rotation (12-factor style).
+    # If this becomes a hot path, cache with a short TTL instead.
+    return os.environ.get("STATUS_HUB_API_KEY", "demo-key")
+
+
+# ── models ────────────────────────────────────────────────────────────────────
 
 class HealthResponse(BaseModel):
     status: str = "ok"
@@ -22,13 +35,17 @@ class VersionResponse(BaseModel):
 
 
 class EchoRequest(BaseModel):
-    message: str = Field(min_length=1)
+    message: str
     count: int = Field(ge=1, le=100)
 
-    @field_validator("message")
+    @field_validator("message", mode="before")
     @classmethod
-    def strip_message(cls, v: str) -> str:
-        return v.strip()
+    def strip_and_validate_message(cls, v: str) -> str:
+        # Strip BEFORE min_length check so "   " is correctly rejected
+        stripped = v.strip()
+        if not stripped:
+            raise ValueError("message must not be blank or whitespace-only")
+        return stripped
 
 
 class EchoResponse(BaseModel):
@@ -36,12 +53,15 @@ class EchoResponse(BaseModel):
     count: int
 
 
+# ── factory ───────────────────────────────────────────────────────────────────
+
 def create_app() -> FastAPI:
     app = FastAPI(title="status-hub", version="0.1.0")
 
     @app.middleware("http")
     async def add_correlation_id(
-        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+            request: Request,
+            call_next: Callable[[Request], Awaitable[Response]],
     ) -> Response:
         cid = request.headers.get("x-correlation-id") or str(uuid.uuid4())
         request.state.correlation_id = cid
@@ -72,7 +92,25 @@ def create_app() -> FastAPI:
     def echo(body: EchoRequest) -> EchoResponse:
         return EchoResponse(message=body.message, count=body.count)
 
+    @app.post("/jobs", status_code=202)
+    def schedule_job(background_tasks: BackgroundTasks) -> dict[str, Any]:
+        job_id = str(uuid.uuid4())
+        background_tasks.add_task(demo_async_work, job_id)
+        return {"job_id": job_id, "status": "accepted"}
+
+    @app.get("/secure/ping")
+    def secure_ping(
+            x_api_key: str | None = Header(default=None, alias="x-api-key"),
+    ) -> dict[str, str]:
+        if not x_api_key:
+            raise HTTPException(status_code=401, detail="missing API key")
+        if x_api_key != _expected_api_key():
+            raise HTTPException(status_code=403, detail="invalid API key")
+        return {"authenticated": "yes"}
+
     return app
 
 
+# Entrypoint for uvicorn: `uvicorn catalog_showcase.app:app`
+# Intentionally after create_app() definition — not executed on import by tests.
 app = create_app()

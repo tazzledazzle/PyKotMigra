@@ -73,12 +73,12 @@ By default, OpenAPI is inferred via **local Ollama** (`POST /api/chat` on `OLLAM
 rm -rf /tmp/pykotmig-gen-order
 uv run --directory tool pykotmig-cli generate \
   --analysis examples/order-api/python/analysis.json \
-  --out /tmp/pykotmig-gen-order \
+  --out /private/tmp/gen \
   --kotlin-package dev.pykotmig.gen.orderapi \
   --project-name gen-order-api \
   --profile order-api \
   --force
-cd /tmp/pykotmig-gen-order && bash ./gradlew test
+cd /private/tmp/gen && bash ./gradlew test
 ```
 
 Use `--profile status-hub` with an analysis produced from `examples/status-hub/python` and `status_hub.app:app`.
@@ -95,7 +95,9 @@ This repository delivers the **reference corpus**, **catalog**, **Python analyze
 
 ## Verification story (status)
 
-Automated OpenAPI diff and golden HTTP parity checks are **Phase 4** (see roadmap). Phase 1 proves **build + unit tests** per demo (`pytest`, `./gradlew test`). **Phase 3** adds `generate` + CI smoke that runs **`./gradlew test`** on emitted Kotlin (see [pykotmig-codegen.yml](../.github/workflows/pykotmig-codegen.yml) in the monorepo root).
+**Reference demos (Status Hub + Order API):** committed **OpenAPI** snapshots under each demo’s `contracts/openapi.json` are checked in CI (`reference-demos-parity` job in [pykotmig-codegen.yml](../../.github/workflows/pykotmig-codegen.yml)): Python tests assert `app.openapi()` matches the file (normalized JSON); Kotlin tests assert **golden HTTP** bodies on success paths (and aligned status codes for validation). The same job runs **`./gradlew test`** for the migration-matrix Kotlin trees (`http-service-python`, `kafka-consumer-python`, `async-worker-python`, `ai-pipeline-python`, `cli-batch-python` under `examples/`). See [examples/contracts/README.md](examples/contracts/README.md).
+
+Automated **OpenAPI diff between Python and generated Kotlin** and full **VER** ladder parity are still **Phase 4** roadmap items for the **codegen** output; Phase 3 proves **`./gradlew test`** on emitted Kotlin (see the `codegen-smoke` job in the same workflow).
 
 ## Troubleshooting
 
@@ -105,13 +107,19 @@ Automated OpenAPI diff and golden HTTP parity checks are **Phase 4** (see roadma
 
 ## Repository layout
 
-| Path | Purpose |
-|------|---------|
-| [catalog/](catalog/README.md) | Human + machine (`manifest.json`) component index |
-| [examples/status-hub/](examples/status-hub/README.md) | Minimal parity demo |
-| [examples/order-api/](examples/order-api/README.md) | CRUD + client + DI demo |
-| [tool/](tool/README.md) | `pykotmig-cli`: `analyze` → `analysis.json`; `generate` → Ktor+Gradle (Phase 3) |
-| [.planning/](.planning/ROADMAP.md) | Roadmap, requirements, phase plans |
+| Path                                                                        | Purpose                                                                         |
+|-----------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| [catalog/](catalog/README.md)                                               | Human + machine (`manifest.json`) component index                               |
+| [examples/status-hub/](examples/status-hub/README.md)                       | Minimal parity demo                                                             |
+| [examples/order-api/](examples/order-api/README.md)                         | CRUD + client + DI demo                                                         |
+| [examples/catalog-showcase/](examples/catalog-showcase/README.md)           | One Python module per catalog component                                         |
+| [examples/http-service-python/](examples/http-service-python/README.md)     | FastAPI HTTP service (→ Ktor)                                                   |
+| [examples/kafka-consumer-python/](examples/kafka-consumer-python/README.md) | `kafka-python` consumer loop (→ JVM `kafka-clients`)                            |
+| [examples/async-worker-python/](examples/async-worker-python/README.md)     | asyncio job pool (→ Temporal Java SDK mental model)                             |
+| [examples/ai-pipeline-python/](examples/ai-pipeline-python/README.md)       | `langchain-core` Runnable pipeline (→ LangChain4j)                              |
+| [examples/cli-batch-python/](examples/cli-batch-python/README.md)           | `argparse` batch CLI (→ Clikt)                                                  |
+| [tool/](tool/README.md)                                                     | `pykotmig-cli`: `analyze` → `analysis.json`; `generate` → Ktor+Gradle (Phase 3) |
+| [.planning/](.planning/ROADMAP.md)                                          | Roadmap, requirements, phase plans                                              |
 
 ## Planning
 

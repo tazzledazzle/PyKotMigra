@@ -13,8 +13,10 @@ repositories {
 
 val ktorVersion = "3.0.3"
 val kotestVersion = "5.9.1"
+val coroutinesVersion = "1.9.0"
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation(platform("io.ktor:ktor-bom:$ktorVersion"))
     implementation("io.ktor:ktor-server-core")
     implementation("io.ktor:ktor-server-netty")

@@ -6,91 +6,99 @@
       "title": "HTTP routes",
       "mvp": true,
       "tags": ["fastapi", "portable"],
-      "python_ref": "examples/status-hub/python/src/status_hub/app.py",
+      "python_ref": "examples/catalog-showcase/python/src/catalog_showcase/routes.py",
       "kotlin_ref": "examples/status-hub/kotlin/src/main/kotlin/dev/pykotmig/statushub/Application.kt",
-      "notes": "Order API routes: examples/order-api/python/src/order_api/app.py and examples/order-api/kotlin/src/main/kotlin/dev/pykotmig/orderapi/Application.kt"
+      "notes": "Also: examples/status-hub/python/src/status_hub/app.py, examples/order-api/python/src/order_api/app.py; Kotlin order-api Application.kt"
     },
     {
       "id": "model.json",
       "title": "Request/response JSON models",
       "mvp": true,
       "tags": ["fastapi", "portable"],
-      "python_ref": "examples/status-hub/python/src/status_hub/app.py",
-      "kotlin_ref": "examples/status-hub/kotlin/src/main/kotlin/dev/pykotmig/statushub/Application.kt"
+      "python_ref": "examples/catalog-showcase/python/src/catalog_showcase/models.py",
+      "kotlin_ref": "examples/status-hub/kotlin/src/main/kotlin/dev/pykotmig/statushub/Application.kt",
+      "notes": "Also: status-hub/app.py (Pydantic models inline)"
     },
     {
       "id": "validation.error",
       "title": "Validation / 422-style errors",
       "mvp": true,
       "tags": ["fastapi"],
-      "python_ref": "examples/status-hub/python/src/status_hub/app.py",
-      "kotlin_ref": "examples/status-hub/kotlin/src/main/kotlin/dev/pykotmig/statushub/Application.kt"
+      "python_ref": "examples/catalog-showcase/python/src/catalog_showcase/validation.py",
+      "kotlin_ref": "examples/status-hub/kotlin/src/main/kotlin/dev/pykotmig/statushub/Application.kt",
+      "notes": "Also: status-hub/app.py (/echo validators)"
     },
     {
       "id": "di",
       "title": "Dependency injection",
       "mvp": true,
       "tags": ["fastapi"],
-      "python_ref": "examples/order-api/python/src/order_api/deps.py",
-      "kotlin_ref": "examples/order-api/kotlin/src/main/kotlin/dev/pykotmig/orderapi/Koin.kt"
+      "python_ref": "examples/catalog-showcase/python/src/catalog_showcase/deps.py",
+      "kotlin_ref": "examples/order-api/kotlin/src/main/kotlin/dev/pykotmig/orderapi/Koin.kt",
+      "notes": "Also: order-api/deps.py"
     },
     {
       "id": "middleware.logging",
       "title": "Middleware (logging / correlation id)",
       "mvp": true,
       "tags": ["fastapi", "portable"],
-      "python_ref": "examples/status-hub/python/src/status_hub/app.py",
-      "kotlin_ref": "examples/status-hub/kotlin/src/main/kotlin/dev/pykotmig/statushub/Application.kt"
+      "python_ref": "examples/catalog-showcase/python/src/catalog_showcase/middleware.py",
+      "kotlin_ref": "examples/status-hub/kotlin/src/main/kotlin/dev/pykotmig/statushub/Application.kt",
+      "notes": "Also: status-hub/app.py (middleware inline)"
     },
     {
       "id": "config.env",
       "title": "Configuration (env + defaults)",
       "mvp": true,
       "tags": ["portable"],
-      "python_ref": "examples/order-api/python/src/order_api/config.py",
-      "kotlin_ref": "examples/order-api/kotlin/src/main/kotlin/dev/pykotmig/orderapi/Config.kt"
+      "python_ref": "examples/catalog-showcase/python/src/catalog_showcase/config.py",
+      "kotlin_ref": "examples/order-api/kotlin/src/main/kotlin/dev/pykotmig/orderapi/Config.kt",
+      "notes": "Also: order-api/config.py"
     },
     {
       "id": "logging.structured",
       "title": "Structured logging",
       "mvp": true,
       "tags": ["portable"],
-      "python_ref": "examples/order-api/python/src/order_api/logging_conf.py",
-      "kotlin_ref": "examples/order-api/kotlin/src/main/kotlin/dev/pykotmig/orderapi/Application.kt"
+      "python_ref": "examples/catalog-showcase/python/src/catalog_showcase/logging_conf.py",
+      "kotlin_ref": "examples/order-api/kotlin/src/main/kotlin/dev/pykotmig/orderapi/Application.kt",
+      "notes": "Also: order-api/logging_conf.py"
     },
     {
       "id": "http.client",
       "title": "Outbound HTTP client",
       "mvp": true,
       "tags": ["portable"],
-      "python_ref": "examples/order-api/python/src/order_api/notify_client.py",
-      "kotlin_ref": "examples/order-api/kotlin/src/main/kotlin/dev/pykotmig/orderapi/NotifyClient.kt"
+      "python_ref": "examples/catalog-showcase/python/src/catalog_showcase/outbound_client.py",
+      "kotlin_ref": "examples/order-api/kotlin/src/main/kotlin/dev/pykotmig/orderapi/NotifyClient.kt",
+      "notes": "Also: order-api/notify_client.py"
     },
     {
       "id": "health.readiness",
       "title": "Health / readiness",
       "mvp": true,
       "tags": ["portable"],
-      "python_ref": "examples/status-hub/python/src/status_hub/app.py",
-      "kotlin_ref": "examples/status-hub/kotlin/src/main/kotlin/dev/pykotmig/statushub/Application.kt"
+      "python_ref": "examples/catalog-showcase/python/src/catalog_showcase/health.py",
+      "kotlin_ref": "examples/status-hub/kotlin/src/main/kotlin/dev/pykotmig/statushub/Application.kt",
+      "notes": "Also: status-hub/app.py GET /health"
     },
     {
       "id": "background.task",
       "title": "Background async task",
       "mvp": false,
       "tags": ["fastapi"],
-      "python_ref": null,
-      "kotlin_ref": null,
-      "notes": "Deferred to v2 per RESEARCH-04"
+      "python_ref": "examples/catalog-showcase/python/src/catalog_showcase/background_tasks.py",
+      "kotlin_ref": "examples/status-hub/kotlin/src/main/kotlin/dev/pykotmig/statushub/Application.kt",
+      "notes": "Also: status-hub FastAPI POST /jobs + BackgroundTasks; Ktor uses ApplicationCoroutineScope.launch."
     },
     {
       "id": "auth.stub",
       "title": "Auth stub (API key / Bearer)",
       "mvp": false,
       "tags": ["fastapi"],
-      "python_ref": null,
-      "kotlin_ref": null,
-      "notes": "Deferred to v2 per RESEARCH-04"
+      "python_ref": "examples/catalog-showcase/python/src/catalog_showcase/auth_stub.py",
+      "kotlin_ref": "examples/status-hub/kotlin/src/main/kotlin/dev/pykotmig/statushub/Application.kt",
+      "notes": "Also: status-hub GET /secure/ping with x-api-key; env STATUS_HUB_API_KEY (default demo-key)."
     }
   ]
 }

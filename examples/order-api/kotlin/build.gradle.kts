@@ -24,6 +24,7 @@ dependencies {
     implementation("io.ktor:ktor-server-status-pages")
     implementation("io.ktor:ktor-client-core")
     implementation("io.ktor:ktor-client-cio")
+    implementation("io.ktor:ktor-client-plugins")
     implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("org.slf4j:slf4j-api:2.0.16")
@@ -32,6 +33,8 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
     testImplementation(kotlin("test"))
 }
 

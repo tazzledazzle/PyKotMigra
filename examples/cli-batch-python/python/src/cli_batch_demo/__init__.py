@@ -1,0 +1,1 @@
+"""CLI batch demo package."""

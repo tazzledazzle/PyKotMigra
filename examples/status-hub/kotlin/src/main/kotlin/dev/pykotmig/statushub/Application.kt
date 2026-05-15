@@ -1,29 +1,49 @@
 package dev.pykotmig.statushub
 
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCallPipeline
 import io.ktor.server.application.call
 import io.ktor.server.application.install
+import kotlinx.coroutines.launch
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.request.receive
 import io.ktor.server.request.path
+import io.ktor.server.request.receive
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
-import io.ktor.http.HttpStatusCode
 import io.ktor.util.AttributeKey
+import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
+import java.util.Collections
 import java.util.UUID
 
 private val log = LoggerFactory.getLogger("status_hub")
 
 val CorrelationIdKey = AttributeKey<String>("CorrelationId")
+
+/** Test hook: mirrors Python `completed_job_ids()` for background job assertions. */
+internal object BackgroundJobRecorder {
+    private val ids: MutableList<String> = Collections.synchronizedList(mutableListOf())
+
+    fun reset() {
+        ids.clear()
+    }
+
+    fun snapshot(): List<String> = ids.toList()
+
+    fun record(jobId: String) {
+        ids.add(jobId)
+    }
+}
+
+private fun expectedApiKey(): String = System.getenv("STATUS_HUB_API_KEY") ?: "demo-key"
 
 @Serializable
 data class HealthResponse(val status: String = "ok")
@@ -90,6 +110,29 @@ fun Application.module() {
                 throw IllegalArgumentException("count out of range")
             }
             call.respond(EchoResponse(message = msg, count = body.count))
+        }
+        post("/jobs") {
+            val jobId = UUID.randomUUID().toString()
+            call.application.launch {
+                delay(20)
+                BackgroundJobRecorder.record(jobId)
+                log.info("background_job_done job_id={}", jobId)
+            }
+            call.respond(
+                HttpStatusCode.Accepted,
+                mapOf("job_id" to jobId, "status" to "accepted"),
+            )
+        }
+        get("/secure/ping") {
+            val key = call.request.headers["x-api-key"]
+            if (key.isNullOrEmpty() || key != expectedApiKey()) {
+                call.respond(
+                    HttpStatusCode.Unauthorized,
+                    mapOf("detail" to "invalid or missing API key"),
+                )
+                return@get
+            }
+            call.respond(mapOf("authenticated" to "yes"))
         }
     }
 }
