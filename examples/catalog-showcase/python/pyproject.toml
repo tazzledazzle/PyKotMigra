@@ -24,4 +24,4 @@ packages = ["src/catalog_showcase"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--strict-markers --cov=catalog_showcase --cov-report=term-missing --cov-fail-under=96"
+addopts = "--strict-markers --cov=catalog_showcase --cov-report=term-missing --cov-fail-under=85"

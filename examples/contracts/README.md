@@ -6,6 +6,8 @@ Each reference demo keeps a **canonical OpenAPI 3** snapshot next to its code:
 |------|---------------|------------|
 | Status Hub | [../status-hub/contracts/openapi.json](../status-hub/contracts/openapi.json) | `cd examples/status-hub/python && uv run python ../../scripts/export_openapi.py status-hub` |
 | Order API | [../order-api/contracts/openapi.json](../order-api/contracts/openapi.json) | `cd examples/order-api/python && uv run python ../../scripts/export_openapi.py order-api` |
+| HTTP service | [../http-service-python/contracts/openapi.json](../http-service-python/contracts/openapi.json) | `cd examples/http-service-python/python && uv run python ../../scripts/export_openapi.py http-service-python` |
+| Catalog showcase | [../catalog-showcase/contracts/openapi.json](../catalog-showcase/contracts/openapi.json) | `cd examples/catalog-showcase/python && uv run python ../../scripts/export_openapi.py catalog-showcase` |
 
 **Parity bar (demos):**
 

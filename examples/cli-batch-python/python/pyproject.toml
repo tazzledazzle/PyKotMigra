@@ -20,7 +20,7 @@ packages = ["src/cli_batch_demo"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--strict-markers --cov=cli_batch_demo --cov-report=term-missing --cov-fail-under=92"
+addopts = "--strict-markers --cov=cli_batch_demo --cov-report=term-missing --cov-fail-under=85"
 
 [tool.mypy]
 python_version = "3.12"

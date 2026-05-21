@@ -12,7 +12,14 @@ from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
 from starlette.responses import Response
 
-from catalog_showcase.background_tasks import demo_async_work
+from status_hub.background_tasks import (
+    completed_job_ids,
+    demo_async_work,
+    reset_completed_for_tests,
+)
+
+# Re-export for tests that import hooks from `status_hub.app`.
+reset_completed_jobs_for_tests = reset_completed_for_tests
 
 logger = logging.getLogger("status_hub")
 
@@ -102,15 +109,13 @@ def create_app() -> FastAPI:
     def secure_ping(
             x_api_key: str | None = Header(default=None, alias="x-api-key"),
     ) -> dict[str, str]:
-        if not x_api_key:
-            raise HTTPException(status_code=401, detail="missing API key")
-        if x_api_key != _expected_api_key():
-            raise HTTPException(status_code=403, detail="invalid API key")
+        if not x_api_key or x_api_key != _expected_api_key():
+            raise HTTPException(status_code=401, detail="invalid or missing API key")
         return {"authenticated": "yes"}
 
     return app
 
 
-# Entrypoint for uvicorn: `uvicorn catalog_showcase.app:app`
+# Entrypoint for uvicorn: `uvicorn status_hub.app:app`
 # Intentionally after create_app() definition — not executed on import by tests.
 app = create_app()

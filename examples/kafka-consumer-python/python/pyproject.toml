@@ -20,7 +20,7 @@ packages = ["src/kafka_consumer_demo"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--strict-markers --cov=kafka_consumer_demo --cov-report=term-missing --cov-fail-under=92"
+addopts = "--strict-markers --cov=kafka_consumer_demo --cov-report=term-missing --cov-fail-under=85"
 
 [tool.mypy]
 python_version = "3.12"

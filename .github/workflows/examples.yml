@@ -6,10 +6,14 @@ on:
     branches: [main, master]
     paths:
       - "examples/**"
+      - "tool/**"
+      - "docs/architecture/**"
       - ".github/workflows/examples.yml"
   pull_request:
     paths:
       - "examples/**"
+      - "tool/**"
+      - "docs/architecture/**"
       - ".github/workflows/examples.yml"
 
 concurrency:
@@ -67,6 +71,8 @@ jobs:
       - name: uv sync and pytest (${{ matrix.example }})
         if: matrix.lang == 'python'
         working-directory: examples/${{ matrix.example }}/python
+        env:
+          VIRTUAL_ENV: ""
         run: |
           uv sync --extra dev
           uv run pytest
@@ -84,3 +90,20 @@ jobs:
         if: matrix.lang == 'kotlin'
         working-directory: examples/${{ matrix.example }}/kotlin
         run: ./gradlew test --no-daemon
+
+  tool:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      - name: uv sync and pytest (tool, ≥85% coverage)
+        working-directory: tool
+        env:
+          VIRTUAL_ENV: ""
+        run: |
+          uv sync --extra dev
+          uv run pytest

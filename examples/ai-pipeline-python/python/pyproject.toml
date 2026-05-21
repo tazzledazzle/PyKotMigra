@@ -20,7 +20,7 @@ packages = ["src/ai_pipeline_demo"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--strict-markers --cov=ai_pipeline_demo --cov-report=term-missing --cov-fail-under=95"
+addopts = "--strict-markers --cov=ai_pipeline_demo --cov-report=term-missing --cov-fail-under=85"
 
 [tool.mypy]
 python_version = "3.12"

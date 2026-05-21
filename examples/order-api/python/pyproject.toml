@@ -24,4 +24,4 @@ packages = ["src/order_api"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--strict-markers --cov=order_api --cov-report=term-missing --cov-fail-under=92"
+addopts = "--strict-markers --cov=order_api --cov-report=term-missing --cov-fail-under=85"

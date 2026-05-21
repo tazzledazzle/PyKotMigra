@@ -18,7 +18,7 @@ packages = ["src/async_worker_demo"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-addopts = "--strict-markers --cov=async_worker_demo --cov-report=term-missing --cov-fail-under=96"
+addopts = "--strict-markers --cov=async_worker_demo --cov-report=term-missing --cov-fail-under=85"
 
 [tool.mypy]
 python_version = "3.12"

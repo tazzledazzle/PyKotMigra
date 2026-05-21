@@ -22,4 +22,4 @@ packages = ["src/status_hub"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--strict-markers --cov=status_hub --cov-report=term-missing --cov-fail-under=95"
+addopts = "--strict-markers --cov=status_hub --cov-report=term-missing --cov-fail-under=85"

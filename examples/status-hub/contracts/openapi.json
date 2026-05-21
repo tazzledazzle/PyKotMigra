@@ -10,7 +10,6 @@
             "type": "integer"
           },
           "message": {
-            "minLength": 1,
             "title": "Message",
             "type": "string"
           }
