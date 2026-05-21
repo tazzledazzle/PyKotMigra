@@ -1,0 +1,86 @@
+# Run pytest (Python) and ./gradlew test (Kotlin) for every example under examples/.
+name: Examples
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "examples/**"
+      - ".github/workflows/examples.yml"
+  pull_request:
+    paths:
+      - "examples/**"
+      - ".github/workflows/examples.yml"
+
+concurrency:
+  group: examples-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      include: ${{ steps.build.outputs.include }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: build
+        name: Discover example × language matrix
+        run: |
+          set -euo pipefail
+          items=()
+          for path in examples/*/; do
+            name="$(basename "$path")"
+            case "$name" in
+              contracts | scripts) continue ;;
+            esac
+            if [[ -f "${path}python/pyproject.toml" ]]; then
+              items+=("{\"example\":\"${name}\",\"lang\":\"python\"}")
+            fi
+            if [[ -f "${path}kotlin/gradlew" ]]; then
+              items+=("{\"example\":\"${name}\",\"lang\":\"kotlin\"}")
+            fi
+          done
+          if [[ ${#items[@]} -eq 0 ]]; then
+            echo "No examples found to test" >&2
+            exit 1
+          fi
+          json='{"include":['"$(IFS=,; echo "${items[*]}")"']}'
+          echo "include=${json}" >> "$GITHUB_OUTPUT"
+          echo "Matrix: ${json}"
+
+  test:
+    needs: matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.matrix.outputs.include) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        if: matrix.lang == 'python'
+        with:
+          python-version: "3.12"
+
+      - name: uv sync and pytest (${{ matrix.example }})
+        if: matrix.lang == 'python'
+        working-directory: examples/${{ matrix.example }}/python
+        run: |
+          uv sync --extra dev
+          uv run pytest
+
+      - name: Setup JDK 17 (${{ matrix.example }})
+        if: matrix.lang == 'kotlin'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+          cache-dependency-path: examples/${{ matrix.example }}/kotlin/**/*.gradle*
+
+      - name: Gradle test
+        if: matrix.lang == 'kotlin'
+        working-directory: examples/${{ matrix.example }}/kotlin
+        run: ./gradlew test --no-daemon
